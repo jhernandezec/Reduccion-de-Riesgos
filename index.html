@@ -1,0 +1,788 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Reto Escolar: Resiliencia y Riesgos</title>
+    <!-- Carga de Tailwind CSS para estilos modernos y responsivos -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <!-- Fuente Inter para legibilidad -->
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@100..900&display=swap');
+        body {
+            font-family: 'Inter', sans-serif;
+            background-color: #e0f2fe; /* Azul cielo muy claro */
+        }
+        .game-button {
+            transition: all 0.3s ease;
+            box-shadow: 0 6px 0 0 #0f172a; /* Sombra sólida para efecto 3D */
+            border-bottom: 2px solid #1e3a8a;
+        }
+        .game-button:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 8px 0 0 #0f172a;
+        }
+        .game-button:active {
+            transform: translateY(4px);
+            box-shadow: 0 2px 0 0 #0f172a;
+        }
+        .level-card {
+            background-color: #ffffff;
+            border: 2px solid #93c5fd;
+            transition: transform 0.3s;
+        }
+        .level-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 10px 15px rgba(0, 0, 0, 0.1);
+        }
+        /* Estilo para texto resaltado (negrita sin fondo blanco) */
+        .highlighted-text {
+            font-weight: bold;
+            /* background-color: #dbeafe; /* Azul claro - Eliminado */
+            /* padding: 0 4px; /* Eliminado */
+            /* border-radius: 4px; /* Eliminado */
+        }
+    </style>
+</head>
+<body class="min-h-screen p-4 md:p-8 flex flex-col items-center">
+    <!-- Contenedor Principal de la Aplicación -->
+    <div class="max-w-4xl w-full bg-white rounded-2xl shadow-2xl p-6 md:p-10 border-4 border-indigo-600">
+        <!-- Cabecera y Título -->
+        <header class="text-center mb-8 bg-indigo-50 p-4 rounded-xl">
+            <h1 class="text-3xl md:text-5xl font-extrabold text-indigo-800 tracking-tight">
+                🚨 Reto RRD: Seguridad Escolar
+            </h1>
+            <p class="text-gray-700 mt-2 text-xl font-medium">
+                "Financiar la resiliencia, no los desastres": ¡Invierte en tu Protocolo!
+            </p>
+        </header>
+        <!-- Área de Información del Usuario y Puntuación -->
+        <div id="user-info" class="bg-indigo-100 p-4 rounded-xl flex flex-col md:flex-row justify-between items-center mb-6 border-l-8 border-indigo-700 shadow-lg">
+            <div id="loading-indicator" class="text-indigo-800 font-semibold text-lg">
+                Listo para participar
+            </div>
+            <div class="hidden" id="user-details">
+                <div class="text-center">
+                    <p class="text-sm text-indigo-900">Participante:</p>
+                    <p id="user-name-display" class="font-bold text-lg text-indigo-800"></p>
+                    <p class="text-xs text-indigo-700 mt-1">Progreso: <span id="progress-display">0/30</span></p>
+                </div>
+            </div>
+            <div class="mt-4 md:mt-0">
+                <p class="text-3xl font-bold text-green-700">Puntos: <span id="user-score" class="text-4xl">0</span> 💰</p>
+            </div>
+        </div>
+        <!-- Área de Contenido Principal (Menú, Juegos, Ranking) -->
+        <main id="main-content">
+            <!-- Menú Principal -->
+            <section id="menu-screen" class="space-y-8">
+                <h2 class="text-3xl font-bold text-gray-800 border-b-4 border-indigo-500 pb-3 mb-6 text-center">🛡️ Desafíos de Seguridad y Protocolos de Emergencia</h2>
+                <div class="grid md:grid-cols-3 gap-6">
+                    <!-- Nivel 1 -->
+                    <div id="level-1-card" onclick="startGame(1)" class="level-card p-5 rounded-xl cursor-pointer hover:shadow-xl shadow-md text-center bg-green-50 hover:bg-green-100">
+                        <h3 class="text-2xl font-bold text-green-700 mb-2">Nivel 1: Peligros y Alerta</h3>
+                        <p class="text-gray-600">Reconoce la <span class="highlighted-text">acción inmediata</span> ante sismos e incendios.</p>
+                        <p class="mt-3 text-lg font-extrabold text-green-600">+10 Puntos por Acierto</p>
+                        <div id="level-1-progress" class="mt-2 text-sm text-gray-600">Progreso: 0/10</div>
+                        <div id="level-1-status" class="mt-1 text-xs text-gray-500">Disponible</div>
+                    </div>
+                    <!-- Nivel 2 -->
+                    <div id="level-2-card" onclick="startGame(2)" class="level-card p-5 rounded-xl cursor-pointer hover:shadow-xl shadow-md text-center bg-yellow-50 hover:bg-yellow-100 opacity-50">
+                        <h3 class="text-2xl font-bold text-yellow-700 mb-2">Nivel 2: Evacuación y Protocolo</h3>
+                        <p class="text-gray-600">Domina las <span class="highlighted-text">rutas seguras</span> y el valor de los simulacros.</p>
+                        <p class="mt-3 text-lg font-extrabold text-yellow-600">+20 Puntos por Acierto</p>
+                        <div id="level-2-progress" class="mt-2 text-sm text-gray-600">Progreso: 0/10</div>
+                        <div id="level-2-status" class="mt-1 text-xs text-red-500">Bloqueado - Requiere 7/10 en Nivel 1</div>
+                    </div>
+                    <!-- Nivel 3 -->
+                    <div id="level-3-card" onclick="startGame(3)" class="level-card p-5 rounded-xl cursor-pointer hover:shadow-xl shadow-md text-center bg-red-50 hover:bg-red-100 opacity-50">
+                        <h3 class="text-2xl font-bold text-red-700 mb-2">Nivel 3: Primeros Auxilios y Seguridad</h3>
+                        <p class="text-gray-600">Aplica el conocimiento ante <span class="highlighted-text">agresiones o lesiones</span> graves.</p>
+                        <p class="mt-3 text-lg font-extrabold text-red-600">+30 Puntos por Acierto</p>
+                        <div id="level-3-progress" class="mt-2 text-sm text-gray-600">Progreso: 0/10</div>
+                        <div id="level-3-status" class="mt-1 text-xs text-red-500">Bloqueado - Requiere 7/10 en Nivel 2</div>
+                    </div>
+                </div>
+                <div class="pt-8">
+                    <h2 class="text-3xl font-bold text-gray-800 border-b-4 border-indigo-500 pb-3 mb-6 text-center">🥇 Líderes en Resiliencia (Ranking Local)</h2>
+                    <!-- Ranking Detallado -->
+                    <div id="leaderboard-list" class="space-y-3 bg-gray-50 p-4 rounded-lg shadow-inner">
+                        <p class="text-gray-500 italic text-center">Aún no hay participantes completos.</p>
+                    </div>
+                    <div id="next-user-section" class="mt-6 text-center hidden">
+                        <button onclick="startNextUser()" class="game-button bg-green-600 hover:bg-green-700 text-white font-bold py-3 px-8 rounded-xl text-lg">
+                            👤 Siguiente Participante
+                        </button>
+                    </div>
+                </div>
+            </section>
+            <!-- Área de Juego (Oculta al inicio) -->
+            <section id="game-screen" class="hidden">
+                <h2 id="game-title" class="text-2xl font-bold text-indigo-700 mb-4 text-center p-2 bg-indigo-100 rounded-lg"></h2>
+                <div id="game-content" class="bg-gray-50 p-6 rounded-xl shadow-inner border border-gray-200">
+                    <!-- Contenido de la pregunta y opciones va aquí -->
+                </div>
+                <div id="feedback" class="mt-4 p-4 rounded-lg text-white font-bold text-lg hidden text-center shadow-lg"></div>
+                <!-- Contenedor de Botones de Navegación -->
+                <div class="flex justify-between items-center mt-8">
+                    <button onclick="showMenu()" class="game-button bg-gray-600 hover:bg-gray-700 text-white font-bold py-3 px-6 rounded-xl text-lg">
+                        🏠 Menú Principal
+                    </button>
+                    <button id="next-button" onclick="nextQuestion()" class="game-button bg-indigo-600 hover:bg-indigo-700 text-white font-bold py-3 px-6 rounded-xl text-lg hidden">
+                        Siguiente Protocolo →
+                    </button>
+                </div>
+            </section>
+        </main>
+        <!-- Modal para Mensajes (en lugar de alert) -->
+        <div id="message-modal" class="fixed inset-0 bg-gray-900 bg-opacity-70 flex items-center justify-center hidden z-50">
+            <div class="bg-white p-8 rounded-xl shadow-2xl max-w-lg w-full transform transition-all duration-500 scale-95 opacity-0 border-4 border-indigo-500" id="modal-content-wrapper">
+                <h3 id="modal-title" class="text-2xl font-extrabold text-indigo-700 mb-4 border-b pb-2"></h3>
+                <p id="modal-body" class="text-gray-700 mb-6"></p>
+                <button onclick="closeModal()" class="w-full game-button bg-indigo-600 hover:bg-indigo-700 text-white font-bold py-3 rounded-xl text-lg">Entendido</button>
+            </div>
+        </div>
+        <!-- Modal para Ingresar Nombre de Usuario -->
+        <div id="name-modal" class="fixed inset-0 bg-gray-900 bg-opacity-70 flex items-center justify-center z-50">
+            <div class="bg-white p-8 rounded-xl shadow-2xl max-w-lg w-full transform transition-all duration-500 scale-100 opacity-100 border-4 border-indigo-500">
+                <h3 class="text-2xl font-extrabold text-indigo-700 mb-4 border-b pb-2 text-center">🎯 ¡Bienvenido al Concurso RRD!</h3>
+                <p class="text-gray-700 mb-6 text-center">Para participar en el concurso, por favor ingresa tu nombre:</p>
+                <div class="mb-6">
+                    <input type="text" id="user-name-input" placeholder="Ingresa tu nombre completo"
+                           class="w-full px-4 py-3 border-2 border-indigo-300 rounded-lg text-lg focus:border-indigo-500 focus:outline-none"
+                           maxlength="50" onkeypress="if(event.key==='Enter') startGameWithName()">
+                </div>
+                <button onclick="startGameWithName()" class="w-full game-button bg-indigo-600 hover:bg-indigo-700 text-white font-bold py-3 rounded-xl text-lg">
+                    🚀 ¡Comenzar Concurso!
+                </button>
+            </div>
+        </div>
+    </div>
+    <!-- Script de Lógica Principal -->
+    <script type="module">
+        // ** Datos Globales de la Aplicación (Almacenamiento Interno) **
+        window.userScore = 0;
+        window.currentLevel = 0;
+        window.currentQuestionIndex = 0;
+        window.userName = '';
+        window.levelProgress = {
+            1: { correct: 0, total: 0, completed: false },
+            2: { correct: 0, total: 0, completed: false },
+            3: { correct: 0, total: 0, completed: false }
+        };
+        window.gameStarted = false;
+        window.allParticipants = []; // Array para almacenar resultados de todos los participantes
+        // Función para resaltar texto (solo negrita)
+        function highlightText(text) {
+            // Eliminar ** al principio y al final de las palabras y rodearlas con <span class="highlighted-text">
+            // Este span ahora solo aplica font-weight: bold; sin fondo blanco
+            return text.replace(/\*\*(\S+?)\*\*/g, '<span class="highlighted-text">$1</span>');
+        }
+        // Función para resaltar la primera palabra de una cadena
+        function highlightFirstWord(text) {
+            return text.replace(/^(\S+)/, '<span class="highlighted-text">$1</span>');
+        }
+        // Función para mezclar aleatoriamente un array (Fisher-Yates Shuffle)
+        function shuffleArray(array) {
+            for (let i = array.length - 1; i > 0; i--) {
+                const j = Math.floor(Math.random() * (i + 1));
+                [array[i], array[j]] = [array[j], array[i]];
+            }
+            return array;
+        }
+        // Contenido del juego enfocado en RIESGOS ESCOLARES (Terremoto, Agresión, Primeros Auxilios)
+        // Nota: Se han eliminado los ** del texto original.
+        window.QUIZZES = {
+            1: {
+                title: "Nivel 1: Peligros y Alerta (+10 Pts por acierto)",
+                points: 10,
+                questions: [
+                    {
+                        q: "¿Cuál es la acción más inmediata y segura que debe tomar un estudiante al sentir un temblor fuerte mientras está en el aula?",
+                        options: ["Correr hacia la salida", "Gritar pidiendo ayuda", "Ubicarse en zonas seguras (bajo mesa/escritorio) y esperar", "Tomar su mochila"],
+                        answerIndex: 2,
+                        explanation: "Invertir en el conocimiento de las zonas seguras es la inversión más rápida y efectiva para protegerse de objetos que caen, previniendo lesiones graves."
+                    },
+                    {
+                        q: "Ante la alerta de un incendio en un piso superior del plantel, la principal ruta de evacuación debe ser:",
+                        options: ["El ascensor", "Las escaleras de emergencia", "Subir al techo", "Las ventanas"],
+                        answerIndex: 1,
+                        explanation: "Conocer y mantener las rutas de evacuación despejadas es una inversión crítica en infraestructura de resiliencia. El ascensor es extremadamente peligroso durante un incendio."
+                    },
+                    {
+                        q: "La primera señal que indica que una amenaza de seguridad (como un intruso) se ha activado en tu área es:",
+                        options: ["El sonido de la alarma de incendio", "La señal de código de seguridad (ej: 'Código Blanco') comunicada por el personal", "Ver humo", "Oír un helicóptero"],
+                        answerIndex: 1,
+                        explanation: "Invertir en un sistema claro de códigos de alerta permite al personal reaccionar de manera coordinada y rápida, que es la esencia de la prevención situacional."
+                    },
+                    {
+                        q: "Durante un sismo, ¿cuál es la posición más segura para proteger la cabeza y el cuello?",
+                        options: ["Pararse junto a la ventana", "Agacharse, cubrirse y agarrarse (técnica 'Agáchate, Cúbrete y Agárrate')", "Correr hacia la puerta", "Subirse a una mesa"],
+                        answerIndex: 1,
+                        explanation: "La técnica 'Agáchate, Cúbrete y Agárrate' es la inversión más efectiva en protección personal durante un sismo, reduciendo el riesgo de lesiones por objetos que caen."
+                    },
+                    {
+                        q: "¿Qué debe hacer un estudiante si detecta humo o fuego en el aula?",
+                        options: ["Abrir todas las ventanas", "Activar la alarma de incendio y evacuar siguiendo la ruta establecida", "Intentar apagar el fuego", "Esconderse debajo del escritorio"],
+                        answerIndex: 1,
+                        explanation: "La activación inmediata de la alarma y la evacuación ordenada son inversiones críticas en tiempo que pueden salvar vidas durante un incendio."
+                    },
+                    {
+                        q: "En caso de amenaza de bomba, ¿cuál es la acción más importante?",
+                        options: ["Buscar el artefacto", "Evacuar inmediatamente sin tocar objetos sospechosos", "Llamar a los padres", "Continuar con las clases"],
+                        answerIndex: 1,
+                        explanation: "La evacuación inmediata sin tocar objetos es la inversión más segura en preservación de vidas ante amenazas explosivas."
+                    },
+                    {
+                        q: "¿Cuál es el número de emergencia que debe marcar un estudiante en caso de peligro inminente?",
+                        options: ["911", "911 (o el número local de emergencias)", "El número de la escuela", "El número de los padres"],
+                        answerIndex: 1,
+                        explanation: "Conocer el número de emergencias (911) es una inversión fundamental en comunicación de crisis que puede activar la respuesta rápida de servicios de emergencia."
+                    },
+                    {
+                        q: "Durante una evacuación por amenaza, ¿qué debe hacer el estudiante con sus pertenencias?",
+                        options: ["Llevar todo consigo", "Dejar las pertenencias y evacuar inmediatamente", "Esconderlas en el escritorio", "Dárselas al profesor"],
+                        answerIndex: 1,
+                        explanation: "Dejar las pertenencias es la inversión correcta en tiempo y seguridad, priorizando la evacuación rápida sobre los objetos materiales."
+                    },
+                    {
+                        q: "¿Qué indica una alarma de evacuación continua en la escuela?",
+                        options: ["Simulacro programado", "Evacuación inmediata por emergencia real", "Fin de clases", "Llamada a reunión"],
+                        answerIndex: 1,
+                        explanation: "Una alarma continua es la señal de inversión en evacuación inmediata, requiriendo acción rápida sin esperar confirmación adicional."
+                    },
+                    {
+                        q: "En caso de corte de energía durante una emergencia, ¿cuál es la prioridad?",
+                        options: ["Usar el celular como linterna", "Seguir las rutas de evacuación marcadas y usar las luces de emergencia", "Esperar a que regrese la luz", "Encender velas"],
+                        answerIndex: 1,
+                        explanation: "Seguir las rutas marcadas y usar luces de emergencia es la inversión en infraestructura de seguridad que garantiza una evacuación segura sin luz."
+                    }
+                ]
+            },
+            2: {
+                title: "Nivel 2: Evacuación y Protocolo (+20 Pts por acierto)",
+                points: 20,
+                questions: [
+                    {
+                        q: "Desde la perspectiva de la ONU ('Financiar la resiliencia...'), la realización de simulacros de evacuación frecuentes en el plantel representa:",
+                        options: ["Un gasto innecesario de tiempo", "Una actividad social", "Una inversión en 'memoria muscular' y reducción de pérdidas humanas", "Una pérdida de clases"],
+                        answerIndex: 2,
+                        explanation: "El simulacro es la inversión no monetaria más valiosa; convierte el protocolo en reflejo (memoria muscular), reduciendo el pánico y el tiempo de evacuación, lo que directamente reduce el riesgo de lesiones y muertes."
+                    },
+                    {
+                        q: "¿Qué documento del plantel funciona como el Plan de Inversión en Resiliencia que detalla rutas, responsabilidades y zonas seguras para cada evento?",
+                        options: ["El Reglamento Interno de Disciplina", "El plan anual de la materia", "El Plan de Gestión de Riesgos y Emergencias", "El listado de estudiantes"],
+                        answerIndex: 2,
+                        explanation: "El Plan de Gestión de Riesgos es el mapa estratégico de la institución; es el documento donde se invierte tiempo y conocimiento para mapear y mitigar futuros desastres."
+                    },
+                    {
+                        q: "Durante una evacuación por amenaza de artefacto explosivo (bomba), ¿qué debe priorizar el estudiante?",
+                        options: ["Correr a gran velocidad", "Llevar consigo todos sus objetos personales", "Mantener la calma, seguir la ruta y no usar celulares ni radios cerca", "Detenerse a buscar a un amigo"],
+                        answerIndex: 2,
+                        explanation: "Seguir el protocolo de calma y silencio de comunicaciones es vital, ya que las ondas de radio o celulares pueden detonar ciertos artefactos, previniendo un desastre mayor."
+                    },
+                    {
+                        q: "¿Cuál es la distancia mínima segura que debe mantener un estudiante durante una evacuación por amenaza explosiva?",
+                        options: ["50 metros", "300 metros o más del edificio", "100 metros", "200 metros"],
+                        answerIndex: 1,
+                        explanation: "La distancia de 300 metros es la inversión en seguridad que minimiza el riesgo de lesiones por ondas expansivas y fragmentos en caso de detonación."
+                    },
+                    {
+                        q: "Durante una evacuación por incendio, ¿cuál es la técnica correcta para verificar si una puerta está caliente?",
+                        options: ["Abrir la puerta completamente", "Tocar la puerta con el dorso de la mano antes de abrir", "Empujar con el pie", "Usar un objeto metálico"],
+                        answerIndex: 1,
+                        explanation: "Tocar con el dorso de la mano es la inversión en seguridad que permite detectar calor sin quemarse, evaluando si la ruta es segura antes de proceder."
+                    },
+                    {
+                        q: "¿Qué debe hacer un estudiante si encuentra humo en la ruta de evacuación?",
+                        options: ["Correr a través del humo", "Buscar una ruta alternativa o gatear por debajo del humo", "Esperar a que se disipe", "Cubrirse la boca con la mano"],
+                        answerIndex: 1,
+                        explanation: "Buscar ruta alternativa o gatear es la inversión en supervivencia que evita la inhalación de humo tóxico, priorizando la seguridad sobre la velocidad."
+                    },
+                    {
+                        q: "En caso de evacuación por amenaza de intruso, ¿cuál es la posición más segura en el punto de reunión?",
+                        options: ["Pararse en grupos grandes", "Mantenerse dispersos y en silencio, siguiendo instrucciones del personal", "Formar un círculo", "Sentarse en el suelo"],
+                        answerIndex: 1,
+                        explanation: "Mantenerse dispersos y en silencio es la inversión en seguridad que reduce el riesgo de ser un objetivo fácil y facilita el control de la situación por parte del personal."
+                    },
+                    {
+                        q: "¿Cuál es el tiempo máximo recomendado para evacuar completamente un edificio escolar de 3 pisos?",
+                        options: ["2 minutos", "3-5 minutos máximo", "10 minutos", "15 minutos"],
+                        answerIndex: 1,
+                        explanation: "El tiempo de 3-5 minutos es la inversión en eficiencia que balancea la seguridad con la rapidez, minimizando la exposición al riesgo durante la evacuación."
+                    },
+                    {
+                        q: "Durante una evacuación por sismo, ¿qué debe hacer un estudiante si está en las escaleras?",
+                        options: ["Correr hacia abajo", "Agarrarse de la barandilla y esperar a que termine el movimiento", "Saltar al siguiente piso", "Subir al techo"],
+                        answerIndex: 1,
+                        explanation: "Agarrarse de la barandilla es la inversión en estabilidad que previene caídas y lesiones durante el movimiento sísmico en escaleras."
+                    },
+                    {
+                        q: "¿Qué indican los códigos de colores en las rutas de evacuación de la escuela?",
+                        options: ["Diferentes tipos de emergencia", "Diferentes salidas y puntos de reunión según la ubicación", "Niveles de peligro", "Horarios de evacuación"],
+                        answerIndex: 1,
+                        explanation: "Los códigos de colores son la inversión en organización que permite a cada persona saber exactamente qué ruta seguir según su ubicación, optimizando el flujo de evacuación."
+                    }
+                ]
+            },
+            3: {
+                title: "Nivel 3: Primeros Auxilios y Seguridad (+30 Pts por acierto)",
+                points: 30,
+                questions: [
+                    {
+                        q: "Al atender a un compañero con una herida cortante y sangrante en el aula, la acción prioritaria de Primeros Auxilios (invertir en la vida) es:",
+                        options: ["Aplicar alcohol", "Lavar la herida con agua caliente", "Aplicar presión directa con una tela limpia o gasa", "Esperar a que el sangrado pare solo"],
+                        answerIndex: 2,
+                        explanation: "La presión directa es la inversión inmediata más crucial para controlar una hemorragia. Detener el sangrado es vital para preservar la vida antes de la llegada de ayuda médica."
+                    },
+                    {
+                        q: "Si un miembro del personal o estudiante es víctima de una agresión con arma blanca o de fuego, la primera acción de la comunidad educativa (antes de atender a la víctima) debe ser:",
+                        options: ["Tomar fotos para evidencia", "Asegurar la zona y llamar inmediatamente a las autoridades (Cero, Policía)", "Correr hacia la víctima", "Intentar desarmar al agresor"],
+                        answerIndex: 1,
+                        explanation: "La seguridad de la zona (asegurar) es la inversión inicial de resiliencia, previniendo que la amenaza se propague a más personas. El control de la escena es primordial."
+                    },
+                    {
+                        q: "En la jornada deportiva, un estudiante sufre una posible fractura en la pierna. ¿Cuál es el paso correcto a seguir para financiar su recuperación de la mejor manera?",
+                        options: ["Intentar endrezar la pierna", "Moverlo inmediatamente a la enfermería", "Inmovilizar la extremidad lesionada tal como está y esperar al personal médico", "Darle un medicamento para el dolor"],
+                        answerIndex: 2,
+                        explanation: "La inmovilización es la inversión de Primeros Auxilios que previene un daño mayor (daño a nervios o vasos sanguíneos). Mover la fractura es el riesgo que debemos evitar."
+                    },
+                    {
+                        q: "¿Cuál es la técnica correcta para realizar la maniobra de Heimlich en un compañero que se está ahogando?",
+                        options: ["Golpear en la espalda", "Aplicar compresiones abdominales firmes hacia arriba y adentro", "Dar agua", "Hacer respiración boca a boca"],
+                        answerIndex: 1,
+                        explanation: "Las compresiones abdominales son la inversión en desobstrucción que puede salvar una vida al expulsar el objeto que obstruye las vías respiratorias."
+                    },
+                    {
+                        q: "Ante un estudiante que presenta convulsiones, ¿cuál es la acción más importante?",
+                        options: ["Sujetarlo para que no se mueva", "Proteger la cabeza y apartar objetos peligrosos, no introducir nada en la boca", "Darle agua", "Moverlo a otra posición"],
+                        answerIndex: 1,
+                        explanation: "Proteger la cabeza y apartar objetos es la inversión en seguridad que previene lesiones adicionales durante las convulsiones, sin interferir con el proceso natural."
+                    },
+                    {
+                        q: "¿Qué debe hacer un estudiante si encuentra a un compañero inconsciente en el baño?",
+                        options: ["Moverlo inmediatamente", "Verificar respiración, llamar emergencias y comenzar RCP si es necesario", "Darle agua", "Esperar a que despierte"],
+                        answerIndex: 1,
+                        explanation: "Verificar respiración y llamar emergencias es la inversión en evaluación que determina si se necesita RCP inmediata para salvar una vida."
+                    },
+                    {
+                        q: "En caso de quemadura por sustancia química en el laboratorio, la primera acción es:",
+                        options: ["Aplicar crema", "Lavar abundantemente con agua corriente por al menos 15 minutos", "Cubrir con vendaje", "Dar analgésicos"],
+                        answerIndex: 1,
+                        explanation: "Lavar con agua abundante es la inversión en neutralización que detiene el daño químico y reduce la severidad de la quemadura."
+                    },
+                    {
+                        q: "¿Cuál es la posición de recuperación correcta para un estudiante inconsciente que respira?",
+                        options: ["Boca arriba", "De lado con la cabeza ladeada para mantener vías aéreas abiertas", "Sentado", "Boca abajo"],
+                        answerIndex: 1,
+                        explanation: "La posición de lado con cabeza ladeada es la inversión en mantenimiento de vías aéreas que previene la aspiración y mantiene la respiración."
+                    },
+                    {
+                        q: "Ante una herida por objeto punzante (clavo, vidrio), ¿qué NO se debe hacer?",
+                        options: ["Lavar la herida", "Retirar el objeto si está incrustado", "Aplicar presión alrededor", "Cubrir la herida"],
+                        answerIndex: 1,
+                        explanation: "No retirar objetos incrustados es la inversión en prevención de daño mayor, ya que el objeto puede estar taponando una hemorragia interna."
+                    },
+                    {
+                        q: "¿Cuál es el número de emergencias médicas que debe conocer todo estudiante?",
+                        options: ["911", "911 (emergencias médicas y de seguridad)", "El número del hospital", "El número de la escuela"],
+                        answerIndex: 1,
+                        explanation: "El 911 es la inversión en comunicación de emergencia que conecta directamente con servicios médicos, bomberos y policía para respuesta rápida."
+                    }
+                ]
+            }
+        };
+        // --- FUNCIONES DE LÓGICA DEL JUEGO Y UI ---
+        /** Muestra el modal personalizado. */
+        window.showModal = (title, body) => {
+            document.getElementById('modal-title').textContent = title;
+            document.getElementById('modal-body').textContent = body;
+            const modal = document.getElementById('message-modal');
+            const content = document.getElementById('modal-content-wrapper');
+            modal.classList.remove('hidden');
+            // Animación de entrada
+            setTimeout(() => {
+                content.classList.remove('opacity-0', 'scale-95');
+                content.classList.add('opacity-100', 'scale-100');
+            }, 10);
+        };
+        /** Cierra el modal personalizado. */
+        window.closeModal = () => {
+            const modal = document.getElementById('message-modal');
+            const content = document.getElementById('modal-content-wrapper');
+            // Animación de salida
+            content.classList.add('opacity-0', 'scale-95');
+            content.classList.remove('opacity-100', 'scale-100');
+            setTimeout(() => {
+                modal.classList.add('hidden');
+            }, 300); // Espera a que termine la transición
+        };
+        /**
+         * Actualiza la puntuación del usuario internamente.
+         * @param {number} pointsToAdd - Puntos a sumar.
+         */
+        window.updateScore = (pointsToAdd) => {
+            console.log(`Intentando agregar ${pointsToAdd} puntos. Score actual: ${window.userScore}`);
+            window.userScore += pointsToAdd;
+            document.getElementById('user-score').textContent = window.userScore; // Actualiza la UI inmediatamente
+            console.log(`Puntos actualizados. Nuevo score: ${window.userScore}`);
+        };
+        /** Muestra la tabla de clasificación local. */
+        const displayLeaderboard = () => {
+            console.log("Mostrando ranking local:", window.allParticipants);
+            const listElement = document.getElementById('leaderboard-list');
+            listElement.innerHTML = ''; // Limpiar lista
+            // Filtrar participantes que hayan completado todos los niveles (pueden acceder al ranking)
+            const rankingParticipants = window.allParticipants.filter(p => p.canAccessResults).sort((a, b) => b.score - a.score);
+            if (rankingParticipants.length === 0) {
+                console.log("No hay participantes completos para el ranking");
+                listElement.innerHTML = '<p class="text-gray-500 italic text-center">Aún no hay participantes que hayan completado todos los niveles.</p>';
+                return;
+            }
+            rankingParticipants.forEach((item, index) => {
+                const rank = index + 1;
+                const isCurrentUser = item.name === window.userName;
+                let rankStyle = 'bg-white';
+                let rankIcon = '🔸';
+                if (rank === 1) {
+                    rankStyle = 'bg-yellow-100 border-yellow-500 font-extrabold';
+                    rankIcon = '👑';
+                } else if (rank === 2) {
+                    rankStyle = 'bg-gray-200 border-gray-400 font-bold';
+                    rankIcon = '🥈';
+                } else if (rank === 3) {
+                    rankStyle = 'bg-amber-100 border-amber-500 font-bold';
+                    rankIcon = '🥉';
+                }
+                const userHighlight = isCurrentUser ? 'bg-indigo-200 border-indigo-700 border-2 shadow-lg' : rankStyle;
+                // Calcular total correcto de este participante
+                const totalCorrect = item.levelProgress[1].correct + item.levelProgress[2].correct + item.levelProgress[3].correct;
+                const html = `
+                    <div class="flex justify-between items-center p-4 rounded-lg ${userHighlight}">
+                        <span class="text-xl w-1/12">${rankIcon} ${rank}.</span>
+                        <div class="flex-1 ml-4">
+                            <span class="font-medium text-lg text-gray-800 block">${item.name}</span>
+                            <span class="text-sm text-gray-600">${totalCorrect}/30 respuestas correctas</span>
+                        </div>
+                        <span class="text-2xl font-black text-green-700 w-1/4 text-right">${item.score} Pts</span>
+                    </div>
+                `;
+                listElement.innerHTML += html;
+            });
+        };
+        /** Inicia el juego con el nombre del usuario. */
+        window.startGameWithName = () => {
+            const nameInput = document.getElementById('user-name-input');
+            const userName = nameInput.value.trim();
+            console.log("Iniciando juego con nombre:", userName);
+            if (!userName) {
+                showModal("Nombre Requerido", "Por favor ingresa tu nombre para participar en el concurso.");
+                return;
+            }
+            window.userName = userName;
+            window.gameStarted = true;
+            console.log("Usuario configurado:", window.userName, "Game started:", window.gameStarted);
+            // Ocultar modal de nombre
+            document.getElementById('name-modal').classList.add('hidden');
+            // Mostrar información del usuario
+            document.getElementById('user-name-display').textContent = userName;
+            document.getElementById('loading-indicator').classList.add('hidden');
+            document.getElementById('user-details').classList.remove('hidden');
+            // Actualizar progreso
+            updateProgressDisplay();
+            updateLevelCards();
+            showModal("¡Bienvenido al Concurso!", `¡Hola ${userName}! Estás listo para demostrar tus conocimientos en resiliencia y gestión de riesgos. ¡Comienza con el Nivel 1!`);
+        };
+        /** Actualiza la visualización del progreso. */
+        window.updateProgressDisplay = () => {
+            const totalCorrect = window.levelProgress[1].correct + window.levelProgress[2].correct + window.levelProgress[3].correct;
+            const totalQuestions = window.levelProgress[1].total + window.levelProgress[2].total + window.levelProgress[3].total;
+            document.getElementById('progress-display').textContent = `${totalCorrect}/${totalQuestions}`;
+        };
+        /** Actualiza el estado de las tarjetas de nivel. */
+        window.updateLevelCards = () => {
+            // Nivel 1 - siempre disponible
+            const level1Card = document.getElementById('level-1-card');
+            const level1Progress = document.getElementById('level-1-progress');
+            const level1Status = document.getElementById('level-1-status');
+            level1Progress.textContent = `Progreso: ${window.levelProgress[1].correct}/${window.levelProgress[1].total}`;
+            if (window.levelProgress[1].completed) {
+                level1Status.textContent = "✅ Completado";
+                level1Status.className = "mt-1 text-xs text-green-600";
+            } else {
+                level1Status.textContent = "Disponible";
+                level1Status.className = "mt-1 text-xs text-gray-500";
+            }
+            // Nivel 2 - requiere 7/10 en nivel 1
+            const level2Card = document.getElementById('level-2-card');
+            const level2Progress = document.getElementById('level-2-progress');
+            const level2Status = document.getElementById('level-2-status');
+            level2Progress.textContent = `Progreso: ${window.levelProgress[2].correct}/${window.levelProgress[2].total}`;
+            if (window.levelProgress[1].correct >= 7) {
+                level2Card.classList.remove('opacity-50');
+                level2Card.onclick = () => startGame(2);
+                if (window.levelProgress[2].completed) {
+                    level2Status.textContent = "✅ Completado";
+                    level2Status.className = "mt-1 text-xs text-green-600";
+                } else {
+                    level2Status.textContent = "Disponible";
+                    level2Status.className = "mt-1 text-xs text-gray-500";
+                }
+            } else {
+                level2Card.classList.add('opacity-50');
+                level2Card.onclick = null;
+                level2Status.textContent = `Bloqueado - Requiere 7/10 en Nivel 1 (${window.levelProgress[1].correct}/10)`;
+                level2Status.className = "mt-1 text-xs text-red-500";
+            }
+            // Nivel 3 - requiere 7/10 en nivel 2
+            const level3Card = document.getElementById('level-3-card');
+            const level3Progress = document.getElementById('level-3-progress');
+            const level3Status = document.getElementById('level-3-status');
+            level3Progress.textContent = `Progreso: ${window.levelProgress[3].correct}/${window.levelProgress[3].total}`;
+            if (window.levelProgress[2].correct >= 7) {
+                level3Card.classList.remove('opacity-50');
+                level3Card.onclick = () => startGame(3);
+                if (window.levelProgress[3].completed) {
+                    level3Status.textContent = "✅ Completado";
+                    level3Status.className = "mt-1 text-xs text-green-600";
+                } else {
+                    level3Status.textContent = "Disponible";
+                    level3Status.className = "mt-1 text-xs text-gray-500";
+                }
+            } else {
+                level3Card.classList.add('opacity-50');
+                level3Card.onclick = null;
+                level3Status.textContent = `Bloqueado - Requiere 7/10 en Nivel 2 (${window.levelProgress[2].correct}/10)`;
+                level3Status.className = "mt-1 text-xs text-red-500";
+            }
+        };
+        /** Verifica si el usuario puede acceder al ranking (ha completado todos los niveles). */
+        window.canAccessResults = () => {
+            const level1Completed = window.levelProgress[1].completed;
+            const level2Completed = window.levelProgress[2].completed;
+            const level3Completed = window.levelProgress[3].completed;
+            const canAccess = level1Completed && level2Completed && level3Completed;
+            console.log(`Verificando acceso a resultados: Nivel 1: ${level1Completed}, Nivel 2: ${level2Completed}, Nivel 3: ${level3Completed}. Puede acceder: ${canAccess}`);
+            return canAccess;
+        };
+        /** Muestra la pantalla principal/menú. */
+        window.showMenu = () => {
+            document.getElementById('game-screen').classList.add('hidden');
+            document.getElementById('menu-screen').classList.remove('hidden');
+            document.getElementById('feedback').classList.add('hidden');
+            document.getElementById('next-button').classList.add('hidden');
+            // Actualizar progreso y tarjetas
+            updateProgressDisplay();
+            updateLevelCards();
+            // Actualizar el ranking al volver al menú
+            displayLeaderboard();
+        };
+        /**
+         * Inicia un juego (nivel) específico.
+         * @param {number} level - El nivel de juego (1, 2, o 3).
+         */
+        window.startGame = (level) => {
+            // Verificar si el juego ha comenzado
+            if (!window.gameStarted) {
+                showModal("Juego No Iniciado", "Por favor ingresa tu nombre primero para comenzar el concurso.");
+                return;
+            }
+            // Verificar requisitos de progreso
+            if (level === 2 && window.levelProgress[1].correct < 7) {
+                showModal("Nivel Bloqueado", `Necesitas responder correctamente al menos 7 preguntas del Nivel 1 para desbloquear el Nivel 2. Actualmente tienes ${window.levelProgress[1].correct}/10.`);
+                return;
+            }
+            if (level === 3 && window.levelProgress[2].correct < 7) {
+                showModal("Nivel Bloqueado", `Necesitas responder correctamente al menos 7 preguntas del Nivel 2 para desbloquear el Nivel 3. Actualmente tienes ${window.levelProgress[2].correct}/10.`);
+                return;
+            }
+            window.currentLevel = level;
+            window.currentQuestionIndex = 0;
+            document.getElementById('menu-screen').classList.add('hidden');
+            document.getElementById('game-screen').classList.remove('hidden');
+            loadQuestion();
+        };
+        /** Carga la pregunta actual en la interfaz. */
+        const loadQuestion = () => {
+            const quiz = window.QUIZZES[window.currentLevel];
+            let qData = quiz.questions[window.currentQuestionIndex];
+            if (!qData) {
+                // Si no hay más preguntas, termina el nivel
+                finishLevel();
+                return;
+            }
+            // Copiar las opciones para no modificar el array original
+            let options = [...qData.options];
+            // Mezclar las opciones
+            options = shuffleArray(options);
+            // Encontrar el nuevo índice de la respuesta correcta después de mezclar
+            let newCorrectIndex = options.indexOf(qData.options[qData.answerIndex]);
+            // Resaltar texto en la pregunta (solo negrita)
+            const highlightedQuestion = highlightText(qData.q);
+            document.getElementById('game-title').textContent = `Nivel ${window.currentLevel}: Pregunta ${window.currentQuestionIndex + 1} de ${quiz.questions.length} | Gana +${quiz.points} Pts`;
+            const gameContent = document.getElementById('game-content');
+            gameContent.innerHTML = `
+                <p class="text-xl font-bold text-gray-800 mb-6">${highlightedQuestion}</p>
+                <div id="options-container" class="space-y-4">
+                    ${options.map((option, index) => `
+                        <button onclick="checkAnswer(${index}, ${newCorrectIndex})" id="option-${index}" class="option-button w-full text-left bg-white hover:bg-indigo-100 border-2 border-indigo-300 text-gray-800 py-3 px-5 rounded-lg transition duration-200 game-button shadow-md shadow-gray-400/50">
+                            ${option}
+                        </button>
+                    `).join('')}
+                </div>
+                <div id="explanation-box" class="mt-6 p-4 bg-indigo-50 border-l-8 border-indigo-600 text-indigo-900 rounded-lg text-base hidden shadow-inner">
+                    <span class="font-bold">✅ Lección de Resiliencia:</span> ${qData.explanation}
+                </div>
+            `;
+            document.getElementById('feedback').classList.add('hidden');
+            document.getElementById('next-button').classList.add('hidden');
+            document.querySelectorAll('.option-button').forEach(btn => btn.disabled = false);
+        };
+        /** Finaliza un nivel y muestra los resultados. */
+        const finishLevel = () => {
+            const level = window.currentLevel;
+            const progress = window.levelProgress[level];
+            const correctAnswers = progress.correct;
+            const totalQuestions = progress.total;
+            // Marcar nivel como completado
+            progress.completed = true;
+            let message = `¡Nivel ${level} Completado!
+`;
+            message += `Respuestas correctas: ${correctAnswers}/${totalQuestions}
+`;
+            message += `Puntos obtenidos: ${correctAnswers * window.QUIZZES[level].points}
+`;
+            if (correctAnswers >= 7) {
+                message += `✅ ¡Excelente! Has superado el mínimo requerido (7/10).
+`;
+                if (level < 3) {
+                    message += `🎉 ¡El siguiente nivel está desbloqueado!`;
+                } else {
+                    message += `🏆 ¡Has completado todos los niveles!`;
+                    if (canAccessResults()) {
+                        message += `
+🥇 ¡Puedes ver tu posición en el ranking!`;
+                        // Agregar al listado de participantes que pueden ver el ranking
+                        const participantData = {
+                            name: window.userName,
+                            score: window.userScore,
+                            levelProgress: {...window.levelProgress}, // Copia del progreso
+                            canAccessResults: true
+                        };
+                        window.allParticipants.push(participantData);
+                        console.log("Participante añadido a la lista:", participantData);
+                        // Mostrar botón para siguiente usuario
+                        document.getElementById('next-user-section').classList.remove('hidden');
+                    }
+                }
+            } else {
+                message += `⚠️ No alcanzaste el mínimo de 7 respuestas correctas.
+`;
+                message += `Puedes intentar el nivel nuevamente para desbloquear el siguiente.`;
+            }
+            showModal("¡Fin del Nivel!", message);
+            showMenu();
+        };
+        /**
+         * Verifica la respuesta seleccionada por el usuario.
+         * @param {number} selectedIndex - Índice de la opción seleccionada (después de mezclar).
+         * @param {number} correctIndex - Índice de la respuesta correcta (después de mezclar).
+         */
+        window.checkAnswer = (selectedIndex, correctIndex) => {
+            const quiz = window.QUIZZES[window.currentLevel];
+            const qData = quiz.questions[window.currentQuestionIndex]; // Datos originales
+            const isCorrect = selectedIndex === correctIndex; // Comparar con el índice mezclado
+            const feedbackBox = document.getElementById('feedback');
+            const explanationBox = document.getElementById('explanation-box');
+            document.querySelectorAll('.option-button').forEach(btn => btn.disabled = true);
+            const selectedButton = document.getElementById(`option-${selectedIndex}`);
+            const correctButton = document.getElementById(`option-${correctIndex}`); // Usar el ID del botón correcto mezclado
+            selectedButton.classList.remove('bg-white', 'hover:bg-indigo-100', 'border-indigo-300');
+            correctButton.classList.remove('bg-white', 'hover:bg-indigo-100', 'border-indigo-300');
+            // Actualizar progreso del nivel
+            const levelProgress = window.levelProgress[window.currentLevel];
+            levelProgress.total++;
+            if (isCorrect) {
+                // Respuesta Correcta
+                selectedButton.classList.add('bg-green-500', 'text-white', 'border-green-700');
+                levelProgress.correct++;
+                console.log(`Respuesta correcta! Agregando ${quiz.points} puntos. Progreso del nivel: ${levelProgress.correct}/${levelProgress.total}`);
+                window.updateScore(quiz.points); // Sumar puntos
+                feedbackBox.classList.remove('hidden', 'bg-red-500');
+                feedbackBox.classList.add('bg-green-600');
+                feedbackBox.textContent = `¡Inversión Exitosa! Ganaste +${quiz.points} puntos.`;
+            } else {
+                // Respuesta Incorrecta
+                selectedButton.classList.add('bg-red-500', 'text-white', 'border-red-700');
+                correctButton.classList.add('bg-green-300', 'border-green-500', 'text-gray-900'); // Mostrar la correcta (mezclada)
+                feedbackBox.classList.remove('hidden', 'bg-green-500');
+                feedbackBox.classList.add('bg-red-600');
+                feedbackBox.textContent = `¡Riesgo Materializado! La respuesta correcta está marcada en verde.`;
+            }
+            // Verificar si el usuario ahora puede acceder al ranking
+            if (canAccessResults()) {
+                console.log(`¡Usuario ${window.userName} ahora puede ver el ranking!`);
+            }
+            explanationBox.classList.remove('hidden');
+            document.getElementById('next-button').classList.remove('hidden');
+        };
+        /** Pasa a la siguiente pregunta o finaliza el nivel. */
+        window.nextQuestion = () => {
+            window.currentQuestionIndex++;
+            loadQuestion();
+        };
+        /** Inicia el juego para el siguiente usuario. */
+        window.startNextUser = () => {
+            // Guardar resultados del usuario actual si completó todos los niveles
+            if (canAccessResults()) {
+                const participantData = {
+                    name: window.userName,
+                    score: window.userScore,
+                    levelProgress: {...window.levelProgress}, // Copia del progreso
+                    canAccessResults: true
+                };
+                // Evitar duplicados si ya está en la lista
+                const existingIndex = window.allParticipants.findIndex(p => p.name === window.userName);
+                if (existingIndex === -1) {
+                    window.allParticipants.push(participantData);
+                } else {
+                    // Opcional: Actualizar si ya existía (por si se repite el concurso)
+                    window.allParticipants[existingIndex] = participantData;
+                }
+                console.log("Participante guardado:", participantData);
+            }
+            // Resetear solo los datos del usuario actual
+            window.userName = '';
+            window.userScore = 0;
+            window.gameStarted = false;
+            window.currentLevel = 0;
+            window.currentQuestionIndex = 0;
+            window.levelProgress = {
+                1: { correct: 0, total: 0, completed: false },
+                2: { correct: 0, total: 0, completed: false },
+                3: { correct: 0, total: 0, completed: false }
+            };
+            // Reiniciar UI
+            document.getElementById('user-score').textContent = '0';
+            document.getElementById('progress-display').textContent = '0/30';
+            updateLevelCards(); // Actualiza las tarjetas de nivel para reflejar el estado inicial
+            // Ocultar información del usuario y mostrar indicador
+            document.getElementById('user-details').classList.add('hidden');
+            document.getElementById('loading-indicator').classList.remove('hidden');
+            document.getElementById('loading-indicator').textContent = 'Preparando para el siguiente participante...';
+            // Ocultar sección de siguiente usuario
+            document.getElementById('next-user-section').classList.add('hidden');
+            // Ocultar pantalla de juego si estaba visible
+            document.getElementById('game-screen').classList.add('hidden');
+            document.getElementById('menu-screen').classList.remove('hidden');
+            // Mostrar modal de nombre
+            document.getElementById('name-modal').classList.remove('hidden');
+            document.getElementById('user-name-input').value = '';
+            document.getElementById('user-name-input').focus();
+            // Actualizar el ranking
+            displayLeaderboard();
+            console.log('Preparando para el siguiente participante.');
+        };
+    </script>
+</body>
+</html>
